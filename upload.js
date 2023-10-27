@@ -24,4 +24,27 @@ const uploadFile = (fileName) => {
         console.log(`File uploaded successfully. ${data.Location}`);
     });
 };
+async function uploadRemoteImage(url){
+  try {
+    AWS.config.update({
+      accessKeyId: process.env.ACCESS_KEY,
+      secretAccessKey: process.env.SECRET_ACCESS_KEY,
+      region: "us-east-1",
+    });
+    const s3 = new AWS.S3();
+    const response = await axios.get(url, { responseType: 'arraybuffer' });
+    const key = `checking/${Date.now().toString()}.jpg`;
+    const params = {
+      Bucket: "test",
+      Key: key,
+      Body: response.data,
+      ContentType: 'image/jpeg',
+    };
+    await s3.upload(params).promise();
+    let urlImage = `https://test.s3.amazonaws.com/${key}`
+    return urlImage
+  } catch (error) {
+    
+  }
+}
 uploadFile("./example.pdf")
